@@ -1,6 +1,7 @@
 # One class, Game
 class Game
-  @@turn_count = 0
+  @turn_count = 0
+  @winning_lines = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 8], [3, 5, 7]]
   def initialize
     puts 'Player 1 - Please enter your name:'
     @player_one = gets.chomp
@@ -25,7 +26,7 @@ class Game
   end
 
   def play_round
-    if @@turn_count.even?
+    if @turn_count.even?
       puts 'Player 1 choice: '
       player_one_choice = gets.chomp.to_i
       until @board.include?(player_one_choice)
@@ -42,32 +43,60 @@ class Game
       end
       @board[(player_two_choice - 1)] = 'O'
     end
-    @@turn_count += 1
+    @turn_count += 1
     display_board
   end
 
+  def compare_lines
+    [0..8].each do |i|
+      if @board[i] == 'X'
+        @winning_lines.each do |line|
+          line.each do |choice|
+            if line[choice] == i + 1
+              line[choice].replace('X')
+            end
+          end
+        end
+      elsif @board[i] == 'O'
+        @winning_lines.each do |line|
+          line.each do |choice|
+            if line[choice] == i + 1
+              line[choice].replace('O')
+            end
+          end
+        end
+      end
+    end
+    @winning_lines
+  end
+
   def play_game
+    # TODO: Fix @winning_lines problem
+    start
+    display_board
     winner = ''
-    winning_lines = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 8], [3, 5, 7]]
     while winner == ''
-      # TODO: Finish while loop so that it checks for a draw
-      # TODO: Finish method so that it ends the game
-      winning_lines.each do |line|
+      compare_lines
+      if @turn_count == 10
+        puts "It's a draw!"
+        break
+      end
+      @winning_lines.each do |line|
         if line.all?('X')
           winner = @player_one
+          puts "#{winner} is the winner! Congratulations!"
+          break
         elsif line.all?('O')
           winner = @player_two
-        elsif line.all?(# Type string)
+          puts "#{winner} is the winner! Congratulations!"
+          break
         else
           play_round
         end
       end
     end
-    puts "#{winner} is the winner! Congratulations!"
   end
 end
 
 new_game = Game.new
-new_game.start
-new_game.display_board
 new_game.play_game
